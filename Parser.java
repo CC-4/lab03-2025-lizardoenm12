@@ -82,9 +82,16 @@ public class Parser {
         /* El codigo de esta seccion se explicara en clase */
 
         switch(op.getId()) {
+            case Token.LPAREN:
+                return 5;
+            case Token.EXP:
+                return 3;
         	case Token.PLUS:
+            case Token.MINUS:
         		return 1;
         	case Token.MULT:
+            case Token.DIV:
+            case Token.MOD:
         		return 2;
         	default:
         		return -1;
@@ -93,7 +100,6 @@ public class Parser {
 
     private void popOp() {
         Token op = this.operadores.pop();
-
         /* TODO: Su codigo aqui */
 
         /* El codigo de esta seccion se explicara en clase */
@@ -128,13 +134,128 @@ public class Parser {
         	// Al terminar operaciones pendientes, guardamos op en stack
 
     }
+    /*
+     * S ::= E; 
+     * E ::= N + E 
+     *      |N - E
+     *      |N
+     * N ::= T * N
+     *      |T / N
+     *      |T % N
+     *      |T
+     * T ::= R ^ T
+     *      |R
+     * G ::= G UNARIO
+     *      |R
+     * R ::=LPAREN
+     *      |RPAREN
+     *      |NUMBER
+     * 
+     * 
+     * 
+     * 
+     */
 
     private boolean S() {
         return E() && term(Token.SEMI);
     }
 
     private boolean E() {
+        int save= this.next;
+
+        this.next = save; 
+        if (E1()){ return true; }
+
+        this.next = save; 
+        if (E2()){return true; }
+
+        this.next = save; 
+        if (E3()) {return true; }
         return false;
+    }
+    private boolean E1(){
+        return N() && term(Token.PLUS) && E(); 
+
+    }
+    private boolean E2(){
+        return N() && term(Token.MINUS) && E();
+    }
+    private boolean E3(){
+        return N(); 
+    }
+    private boolean N(){
+        int save = this.next;
+
+        this.next = save; 
+        if (N1()){return true; }
+
+        this.next = save; 
+        if (N2()){return true; }
+
+        this.next = save; 
+        if (N3()){return true; }
+
+        this.next = save; 
+        if (N4()){return true; }
+
+        return false; 
+    }
+    private boolean N1(){
+        return T() && term(Token.MULT) && N();
+    }
+    private boolean N2(){
+        return T() && term(Token.DIV) && N();
+    }
+    private boolean N3(){
+        return T() && term(Token.MOD) && N();
+    }
+    private boolean N4(){
+        return T();
+    }
+    private boolean T(){
+        int save = this.next;
+
+        this.next = save; 
+        if (T1()){return true; }
+
+        this.next = save; 
+        if (T2()){return true; }
+    }
+    private boolean T1(){
+        return R() && term(Token.EXP) && T(); 
+    }
+    private boolean T2(){
+        return R(); 
+    }
+    /*private boolean G(){
+        int save = this.next;
+
+        this.next = save; 
+        if (G1()){return true; }
+        this.next = save; 
+        if (G2()){return true; }
+        return false; 
+    }
+    private boolean G1(){
+        return R() && term(Token.UNARIO) && G();
+    }
+    private boolean G2(){
+        return R();
+    } */
+    private boolean R(){
+        int save = this.next;
+
+        this.next = save; 
+        if (R1()){return true; }
+        this.next = save; 
+        if (R2()){return true; }
+        return false;
+    }
+    private boolean R1(){
+        return term(Token.LPAREN);
+    }
+    private boolean R2(){
+        return term(Token.NUMBER);
     }
 
     /* TODO: sus otras funciones aqui */

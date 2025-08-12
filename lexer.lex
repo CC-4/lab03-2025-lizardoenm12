@@ -91,7 +91,10 @@ MOD="%"
 EXP="^"
 LPAREN="("
 RPAREN=")"
-NUMBER= [0-9]+( \. ?([0-9]*))?([eE] [+-]?[0-9]+)?
+UNARIO= "~"
+DIGITO= [0-9] | UNARIO[0-9]
+EXPONENTE= [eE]
+NUMBER= DIGITO+( \. ?(DIGITO*))?(EXPONENTE [+-]?DIGITO+)?
 WHITE = (" "|\t|\n)
 
 %%
@@ -106,6 +109,7 @@ WHITE = (" "|\t|\n)
 <YYINITIAL> {LPAREN}     {return new Token(Token.LPAREN); }
 <YYINITIAL> {RPAREN}     {return new Token(Token.RPAREN); }
 <YYINITIAL>{SEMI}   {return new Token(Token.SEMI); }
+<YYINITIAL>{UNARIO}   {return new Token(Token.UNARIO); }
 <YYINITIAL>{NUMBER} {return new Token(Token.NUMBER, yytext()); }
 
 <YYINITIAL>{WHITE}  { /* NO HACER NADA */             }
